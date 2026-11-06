@@ -435,10 +435,53 @@ Peça o seu pelo WhatsApp: https://wa.me/5567993174612`;
       return;
     }
 
-    // 4. Try calling server AI endpoint with strict 3-second timeout for open-ended queries
+    // 4. Try calling server AI endpoint with all dynamic company variables
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const timeoutId = setTimeout(() => controller.abort(), 7000);
+
+      const cleanPhone = (data.contato?.telefone || "67993174512").replace(/\D/g, "");
+      const isSuperlimpo = data.slug === "superlimpo" || data.name?.toLowerCase().includes("superlimpo");
+      const humanSupportChannel = isSuperlimpo
+        ? "https://api.whatsapp.com/send?phone=5567998342469"
+        : `https://wa.me/55${cleanPhone}`;
+
+      const companyInfo = {
+        name: data.name,
+        slug: data.slug,
+        tagline: data.netflix?.headline || data.netflix?.tagline || "",
+        description: data.bio || "",
+        category: data.netflix?.genres?.join(", ") || "",
+        phone: data.contato?.telefone || "",
+        whatsapp: isSuperlimpo ? "5567998342469" : `55${cleanPhone}`,
+        email: data.contato?.email || "",
+        address: data.contato?.local || data.mapa?.title || "",
+        website: data.produtos?.url || "https://www.startmktlocal.com.br/",
+        mapsUrl: data.mapa?.link || "",
+        hours: isSuperlimpo
+          ? "Entregas até às 16h | Sábados às 07h e às 15:30h"
+          : "Segunda a Sexta das 08h às 18h | Sábado das 08h às 12h",
+        products: (data.catalogo?.items || []).map((p) => ({
+          name: p.title,
+          price: p.price || "",
+          description: p.description || "",
+        })),
+        services: (data.servicos?.items || []).map((s) => ({
+          name: s.title,
+          url: s.url || "",
+          description: s.title,
+        })),
+        links: (data.links || []).map((l) => ({
+          title: l.title,
+          url: l.url || "",
+        })),
+        knowledge: data.atendimento?.conhecimento || "",
+        faq: [
+          ...(data.atendimento?.empresa || []),
+          ...(data.atendimento?.produtos || []),
+        ],
+        humanSupportChannel,
+      };
 
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -447,9 +490,10 @@ Peça o seu pelo WhatsApp: https://wa.me/5567993174612`;
         body: JSON.stringify({
           message: query,
           clientName: data.name,
-          clientKnowledge: `Assistente: LIA.\n${data.atendimento.conhecimento}\n\nPerguntas Frequentes:\n${[
-            ...data.atendimento.empresa,
-            ...data.atendimento.produtos,
+          companyInfo,
+          clientKnowledge: `Assistente: LIA.\n${data.atendimento?.conhecimento || ""}\n\nPerguntas Frequentes:\n${[
+            ...(data.atendimento?.empresa || []),
+            ...(data.atendimento?.produtos || []),
           ]
             .map((i) => `P: ${i.pergunta}\nR: ${i.resposta}`)
             .join("\n")}`,
