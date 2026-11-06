@@ -1,0 +1,8 @@
+{
+  "name": "Netflix Conectacard - Cartão NFC Inteligente \u0026 Biolink",
+  "description": "Biolink e Cartão NFC Inteligente Conectacard no estilo Netflix: catálogo de produtos, serviços, atendente virtual LIA e contatos em formato de streaming cinematográfico.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

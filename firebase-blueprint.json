@@ -1,0 +1,317 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Usuário autenticado do sistema BiositesAI",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do usuário no Firebase Auth"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "E-mail do usuário"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "company_owner", "member"],
+          "description": "Papel do usuário no sistema"
+        },
+        "companyId": {
+          "type": "string",
+          "description": "ID da empresa à qual o usuário pertence"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Data de criação do usuário"
+        }
+      },
+      "required": ["id", "email", "role"]
+    },
+    "Company": {
+      "title": "Company",
+      "description": "Empresa cadastrada no BiositesAI (Multiempresa SaaS)",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador único da empresa"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "ID do usuário proprietário da empresa"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome da empresa"
+        },
+        "slug": {
+          "type": "string",
+          "description": "Slug para URL do biosite"
+        },
+        "bio": {
+          "type": "string",
+          "description": "Biografia ou descrição da empresa"
+        },
+        "bannerUrl": {
+          "type": "string",
+          "description": "URL da imagem de banner"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "URL do logotipo ou avatar"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Telefone de contato"
+        },
+        "whatsapp": {
+          "type": "string",
+          "description": "Número do WhatsApp para atendimento"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "E-mail de contato"
+        },
+        "address": {
+          "type": "string",
+          "description": "Endereço físico da empresa"
+        },
+        "openingHours": {
+          "type": "string",
+          "description": "Horário de atendimento e funcionamento"
+        },
+        "instagram": {
+          "type": "string",
+          "description": "Link ou arroba do Instagram"
+        },
+        "website": {
+          "type": "string",
+          "description": "Website oficial"
+        },
+        "googleReviewUrl": {
+          "type": "string",
+          "description": "Link de avaliação no Google"
+        },
+        "googleMapsUrl": {
+          "type": "string",
+          "description": "Link da localização no Google Maps"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Data de criação"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Data da última atualização"
+        }
+      },
+      "required": ["id", "name", "slug"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Produto do catálogo da empresa",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador do produto"
+        },
+        "companyId": {
+          "type": "string",
+          "description": "ID da empresa dona do produto"
+        },
+        "title": {
+          "type": "string",
+          "description": "Título do produto"
+        },
+        "price": {
+          "type": "string",
+          "description": "Preço formatado (ex: R$ 38,00)"
+        },
+        "image": {
+          "type": "string",
+          "description": "URL da imagem do produto"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição detalhada do produto"
+        },
+        "category": {
+          "type": "string",
+          "description": "Categoria do produto"
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Indica se o produto está disponível"
+        }
+      },
+      "required": ["id", "companyId", "title"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Serviço oferecido pela empresa",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador do serviço"
+        },
+        "companyId": {
+          "type": "string",
+          "description": "ID da empresa dona do serviço"
+        },
+        "title": {
+          "type": "string",
+          "description": "Nome do serviço"
+        },
+        "image": {
+          "type": "string",
+          "description": "Imagem ilustrativa do serviço"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição detalhada do serviço"
+        },
+        "price": {
+          "type": "string",
+          "description": "Preço ou valor base do serviço"
+        },
+        "url": {
+          "type": "string",
+          "description": "URL externa se houver"
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Indica se o serviço está ativo"
+        }
+      },
+      "required": ["id", "companyId", "title"]
+    },
+    "Link": {
+      "title": "Link",
+      "description": "Link rápido do biosite (WhatsApp, Redes, Mapas)",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador do link"
+        },
+        "companyId": {
+          "type": "string",
+          "description": "ID da empresa"
+        },
+        "title": {
+          "type": "string",
+          "description": "Título exibido no link"
+        },
+        "image": {
+          "type": "string",
+          "description": "Ícone ou imagem do link"
+        },
+        "url": {
+          "type": "string",
+          "description": "Destino do link"
+        },
+        "ranking": {
+          "type": "number",
+          "description": "Ordem de exibição no ranking"
+        },
+        "category": {
+          "type": "string",
+          "description": "Categoria do link"
+        }
+      },
+      "required": ["id", "companyId", "title"]
+    },
+    "LiaConfig": {
+      "title": "LiaConfig",
+      "description": "Configuração da agente virtual LIA para cada empresa",
+      "type": "object",
+      "properties": {
+        "companyId": {
+          "type": "string",
+          "description": "ID da empresa"
+        },
+        "greeting": {
+          "type": "string",
+          "description": "Mensagem inicial de saudação da LIA"
+        },
+        "knowledge": {
+          "type": "string",
+          "description": "Base de conhecimento específica da empresa"
+        },
+        "humanFallbackWhatsapp": {
+          "type": "string",
+          "description": "WhatsApp de transição para atendimento humano"
+        },
+        "rules": {
+          "type": "string",
+          "description": "Instruções e guardrails da IA"
+        }
+      },
+      "required": ["companyId"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Sessão de conversa entre um visitante e a LIA",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID da conversa"
+        },
+        "companyId": {
+          "type": "string",
+          "description": "ID da empresa"
+        },
+        "userIdentifier": {
+          "type": "string",
+          "description": "Identificador do visitante ou anônimo"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp de início"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp da última mensagem"
+        }
+      },
+      "required": ["id", "companyId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "Dados do usuário e permissões da empresa"
+    },
+    "/companies/{companyId}": {
+      "schema": { "$ref": "Company" },
+      "description": "Documento raiz de cada empresa no SaaS"
+    },
+    "/companies/{companyId}/products/{productId}": {
+      "schema": { "$ref": "Product" },
+      "description": "Catálogo de produtos da empresa"
+    },
+    "/companies/{companyId}/services/{serviceId}": {
+      "schema": { "$ref": "Service" },
+      "description": "Serviços oferecidos pela empresa"
+    },
+    "/companies/{companyId}/links/{linkId}": {
+      "schema": { "$ref": "Link" },
+      "description": "Links de contato e redes sociais da empresa"
+    },
+    "/companies/{companyId}/lia_config/main": {
+      "schema": { "$ref": "LiaConfig" },
+      "description": "Configuração da agente de IA LIA para a empresa"
+    },
+    "/companies/{companyId}/conversations/{conversationId}": {
+      "schema": { "$ref": "Conversation" },
+      "description": "Histórico de conversas com a LIA"
+    }
+  }
+}

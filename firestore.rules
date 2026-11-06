@@ -1,0 +1,144 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isCompanyOwner(companyId) {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/companies/$(companyId)) &&
+        get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid;
+    }
+
+    // 1. Users collection: Each user manages only their own profile
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // No blanket listing of users
+      allow create: if isOwner(userId) &&
+        incoming().keys().hasAll(['id', 'email']) &&
+        incoming().id == request.auth.uid &&
+        incoming().email is string &&
+        incoming().email.size() <= 128;
+      allow update: if isOwner(userId) &&
+        incoming().id == existing().id &&
+        (!('role' in incoming()) || incoming().role == existing().role);
+      allow delete: if isOwner(userId);
+    }
+
+    // 2. Companies collection
+    match /companies/{companyId} {
+      // Public read so visitors can open the biosite / Netflix biolink
+      allow get: if isValidId(companyId);
+      allow list: if true;
+
+      // Creation: Authenticated user creates their company
+      allow create: if isSignedIn() &&
+        isValidId(companyId) &&
+        incoming().keys().hasAll(['id', 'name', 'slug']) &&
+        incoming().name is string && incoming().name.size() <= 120 &&
+        incoming().slug is string && incoming().slug.size() <= 80 &&
+        (!('ownerId' in incoming()) || incoming().ownerId == request.auth.uid);
+
+      // Update & Delete: Only the owner of the company
+      allow update: if isSignedIn() &&
+        isValidId(companyId) &&
+        existing().ownerId == request.auth.uid &&
+        (!('ownerId' in incoming()) || incoming().ownerId == existing().ownerId);
+
+      allow delete: if isSignedIn() &&
+        isValidId(companyId) &&
+        existing().ownerId == request.auth.uid;
+
+      // 3. Products Subcollection
+      match /products/{productId} {
+        allow get, list: if isValidId(companyId);
+        allow create: if isCompanyOwner(companyId) &&
+          isValidId(productId) &&
+          incoming().keys().hasAll(['id', 'companyId', 'title']) &&
+          incoming().companyId == companyId &&
+          incoming().title is string && incoming().title.size() <= 150;
+        allow update: if isCompanyOwner(companyId) &&
+          isValidId(productId) &&
+          incoming().companyId == existing().companyId;
+        allow delete: if isCompanyOwner(companyId) && isValidId(productId);
+      }
+
+      // 4. Services Subcollection
+      match /services/{serviceId} {
+        allow get, list: if isValidId(companyId);
+        allow create: if isCompanyOwner(companyId) &&
+          isValidId(serviceId) &&
+          incoming().keys().hasAll(['id', 'companyId', 'title']) &&
+          incoming().companyId == companyId &&
+          incoming().title is string && incoming().title.size() <= 150;
+        allow update: if isCompanyOwner(companyId) &&
+          isValidId(serviceId) &&
+          incoming().companyId == existing().companyId;
+        allow delete: if isCompanyOwner(companyId) && isValidId(serviceId);
+      }
+
+      // 5. Links Subcollection
+      match /links/{linkId} {
+        allow get, list: if isValidId(companyId);
+        allow create: if isCompanyOwner(companyId) &&
+          isValidId(linkId) &&
+          incoming().keys().hasAll(['id', 'companyId', 'title']) &&
+          incoming().companyId == companyId &&
+          incoming().title is string && incoming().title.size() <= 150;
+        allow update: if isCompanyOwner(companyId) &&
+          isValidId(linkId) &&
+          incoming().companyId == existing().companyId;
+        allow delete: if isCompanyOwner(companyId) && isValidId(linkId);
+      }
+
+      // 6. LIA Config Subcollection
+      match /lia_config/{configId} {
+        allow get: if isValidId(companyId);
+        allow list: if isValidId(companyId);
+        allow create, update, delete: if isCompanyOwner(companyId) && isValidId(configId);
+      }
+
+      // 7. Conversations Subcollection
+      match /conversations/{conversationId} {
+        allow get: if isValidId(companyId) && isValidId(conversationId);
+        allow create: if isValidId(companyId) && isValidId(conversationId) &&
+          incoming().companyId == companyId;
+        allow update: if isValidId(companyId) && isValidId(conversationId) &&
+          incoming().companyId == existing().companyId;
+        allow delete: if isCompanyOwner(companyId) && isValidId(conversationId);
+
+        match /messages/{messageId} {
+          allow get, list: if isValidId(companyId) && isValidId(conversationId);
+          allow create: if isValidId(companyId) && isValidId(conversationId) && isValidId(messageId) &&
+            incoming().keys().hasAll(['role', 'text']) &&
+            incoming().text is string && incoming().text.size() <= 4000;
+        }
+      }
+    }
+  }
+}
