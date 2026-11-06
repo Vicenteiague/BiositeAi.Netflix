@@ -566,8 +566,8 @@ Peça o seu pelo WhatsApp: https://wa.me/5567993174612`;
               alt="LIA - Assistente virtual inteligente"
               className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border-2 border-[#E50914] shadow-md"
             />
-            <span className="absolute -bottom-1 -right-1 px-1 py-0.2 bg-[#E50914] text-white text-[8px] font-black rounded uppercase">
-              IA
+            <span className="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-gradient-to-r from-[#E50914] to-[#ff2d37] text-white text-[8px] font-black rounded shadow-md tracking-wider">
+              PRO
             </span>
           </div>
 
@@ -583,8 +583,11 @@ Peça o seu pelo WhatsApp: https://wa.me/5567993174612`;
               </span>
             </div>
 
-            <p className="text-xs sm:text-sm font-medium text-[#a3a3a3] mt-0.5">
-              Assistente virtual com inteligência artificial
+            <p className="text-xs sm:text-sm font-medium text-[#a3a3a3] mt-0.5 flex items-center gap-1.5 flex-wrap">
+              <span>Assistente virtual inteligente</span>
+              <span className="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-semibold text-emerald-300 border border-emerald-500/30">
+                Gemini 3.8 Pro
+              </span>
             </p>
           </div>
         </div>

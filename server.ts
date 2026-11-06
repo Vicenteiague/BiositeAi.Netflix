@@ -1,6 +1,6 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -15,8 +15,15 @@ const port = 3000;
 
 app.use(express.json());
 
-// Initialize Gemini API client (automatically picks up GEMINI_API_KEY from environment)
-const ai = new GoogleGenAI();
+// Initialize Gemini API client with official telemetry header
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+  httpOptions: {
+    headers: {
+      "User-Agent": "aistudio-build",
+    },
+  },
+});
 
 interface CacheEntry {
   reply: string;
@@ -182,7 +189,7 @@ app.post("/api/chat", async (req, res) => {
       parts: [{ text: message }],
     });
 
-    const candidateModels = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+    const candidateModels = ["gemini-3.8-flash", "gemini-3.1-flash-lite"];
     let reply = "";
 
     for (const model of candidateModels) {
@@ -192,8 +199,7 @@ app.post("/api/chat", async (req, res) => {
           contents,
           config: {
             systemInstruction,
-            temperature: 0.3,
-            maxOutputTokens: 1024,
+            thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
           },
         });
         if (response.text) {

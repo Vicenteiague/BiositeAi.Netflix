@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 
 interface CacheEntry {
   reply: string;
@@ -177,9 +177,15 @@ export const handler = async (event: any) => {
 
   if (apiKey) {
     try {
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            "User-Agent": "aistudio-build",
+          },
+        },
+      });
       const systemInstruction = buildLiaSystemInstruction(companyInfo, clientName, clientKnowledge);
-
 
       const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
 
@@ -199,7 +205,7 @@ export const handler = async (event: any) => {
         parts: [{ text: message }],
       });
 
-      const candidateModels = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+      const candidateModels = ["gemini-3.8-flash", "gemini-3.1-flash-lite"];
       let reply = "";
 
       for (const model of candidateModels) {
@@ -209,8 +215,7 @@ export const handler = async (event: any) => {
             contents,
             config: {
               systemInstruction,
-              temperature: 0.3,
-              maxOutputTokens: 1024,
+              thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
             },
           });
           if (response.text) {
